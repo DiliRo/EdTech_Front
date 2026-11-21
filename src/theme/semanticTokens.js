@@ -14,6 +14,10 @@ export const semanticTokens = {
         'bg.sidebarHover': 'navy.400',
         'bg.sidebarActive': 'navy.700',
         'bg.header': 'turquoise.400',
+        // Opciones seleccionables (grados, materias, temas)
+        'bg.option': 'turquoise.200',
+        'bg.optionHover': 'turquoise.100',
+        'bg.optionSelected': 'turquoise.500', // turquesa más intenso + borde navy = seleccionado
 
         // Texto
         'text.primary': 'navy.500', // títulos, encabezados, texto destacado
@@ -24,6 +28,7 @@ export const semanticTokens = {
         // Bordes y foco
         'border.subtle': 'turquoise.600',
         'border.strong': 'navy.500',
+        'border.selected': 'navy.500',
         'focus.ring': 'navy.400',
 
         // Estados

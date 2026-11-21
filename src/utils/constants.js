@@ -7,6 +7,7 @@ export const ROUTES = Object.freeze({
     login: '/login',
     register: '/register',
     dashboard: '/dashboard',
+    curriculum: '/curriculo',
     classrooms: '/aulas',
     methodologies: '/metodologias',
     lessonGuides: '/guias',

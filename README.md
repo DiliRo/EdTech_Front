@@ -73,17 +73,19 @@ src/
 │   ├── layout/               # Sidebar, NavItem, Header, navigation.js (elementos del menú)
 │   ├── feedback/             # LoadingState, ErrorState, EmptyState, AsyncContent
 │   ├── auth/                 # ProtectedRoute, PublicOnlyRoute
+│   ├── catalog/              # OptionGroup, GradeSelector, SubjectSelector, TopicSelector, TopicDetail
 │   ├── ui/                   # BrandLogo, PageHeader, SurfaceCard, FormField, FormAlert, PasswordInput…
 │   └── ServerStatusCard.jsx  # estado real de GET /api/health
-├── pages/                    # Login, Register, Dashboard, Profile, ComingSoon, NotFound
+├── pages/                    # Login, Register, Dashboard, Curriculum, Profile, ComingSoon, NotFound
 ├── services/
 │   ├── apiClient.js          # Axios centralizado (VITE_API_URL, token Bearer, errores)
 │   ├── auth.service.js       # POST /auth/register, POST /auth/login, GET /auth/me
 │   ├── teacher.service.js    # PATCH /teachers/me
+│   ├── catalog.service.js    # GET /grades, /subjects, /topics, /topics/:id
 │   └── health.service.js
-├── hooks/                    # useAsync, useApiHealth, useAuth, useFormState, useDocumentTitle
+├── hooks/                    # useAsync, useQuery, useApiHealth, useAuth, useFormState, useDocumentTitle
 ├── context/                  # AuthContext: sesión del docente
-└── utils/                    # constantes, env, jwt, tokenStorage, apiError, validation
+└── utils/                    # constantes, env, jwt, tokenStorage, apiError, validation, catalog, text
 tests/                        # Vitest + Testing Library
 ```
 
@@ -94,6 +96,7 @@ tests/                        # Vitest + Testing Library
 | `/` | Redirige a `/dashboard` |
 | `/login`, `/register` | Públicas: si ya hay sesión redirigen al panel |
 | `/dashboard` | Privada. Panel principal |
+| `/curriculo` | Privada. Grados → materias → temas → contenido curricular |
 | `/perfil` | Privada. Nombre, apellido e idioma preferido |
 | `/aulas`, `/metodologias`, `/guias`, `/evaluaciones`, `/seguimiento` | Privadas. "Módulo en preparación" |
 | cualquier otra | 404 |
@@ -127,6 +130,28 @@ servidor no responde al verificar la sesión, se muestra un error con "Reintenta
 
 **Idioma preferido.** Se guarda en el perfil. La interfaz sigue en español hasta contar con
 traducciones validadas al Q'eqchi', K'iche', Mam y Kaqchikel.
+
+## Selección académica (`/curriculo`)
+
+Consulta de solo lectura del catálogo curricular (módulo B3 del backend):
+
+| Paso | Endpoint |
+|---|---|
+| 1. Grados de primaria | `GET /api/grades?level=primaria` |
+| 2. Materias del grado | `GET /api/subjects?grade=<id>` |
+| 3. Temas de la materia en ese grado | `GET /api/topics?grade=<id>&subject=<id>&page=<n>&limit=100` (se recorren todas las páginas) |
+| 4. Contenido del tema | `GET /api/topics/:id` |
+
+- Cada paso consulta el backend solo con la selección anterior, así solo aparecen las materias
+  del grado y los temas de esa materia y grado.
+- La selección vive en la URL (`?grado=&materia=&tema=`): se puede recargar, compartir y deshacer
+  con "Atrás". Ids que no existan en el catálogo se ignoran.
+- La búsqueda de temas filtra en el navegador (sin tildes ni mayúsculas): el backend no tiene
+  parámetro de búsqueda.
+- Todo el contenido viene del backend; si falta descripción, competencias, indicadores o
+  referencia curricular se indica su ausencia. Los registros con `isSample` /
+  `containsSampleData` muestran el aviso "no proviene del CNB".
+- Los selectores son grupos de radios accesibles (teclado y lector de pantalla).
 
 ## Cliente HTTP
 
