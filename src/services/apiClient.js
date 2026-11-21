@@ -11,7 +11,7 @@ export const UNAUTHORIZED_EVENT = 'etamanik:unauthorized'
 
 /**
  * Cliente HTTP centralizado. Todas las llamadas al backend pasan por aquí.
- *  - baseURL desde VITE_API_URL (p. ej. http://localhost:3000/api)
+ *  - baseURL desde VITE_API_URL (por defecto https://etemanik-backend.onrender.com/api)
  *  - agrega `Authorization: Bearer <token>` si hay sesión
  *  - convierte los errores al formato de `normalizeApiError`
  */

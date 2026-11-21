@@ -121,3 +121,10 @@ describe('getHealth (GET /api/health)', () => {
         await expect(getHealth()).rejects.toMatchObject({ status: 500, message: 'Error interno del servidor' })
     })
 })
+
+describe('URL del backend', () => {
+    it('por defecto apunta al backend desplegado en Render, con /api', async () => {
+        const { DEFAULT_API_URL } = await import('../src/utils/env.js')
+        expect(DEFAULT_API_URL).toBe('https://etemanik-backend.onrender.com/api')
+    })
+})
