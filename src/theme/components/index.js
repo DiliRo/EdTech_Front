@@ -1,7 +1,7 @@
 /**
  * Estilos de componentes de Chakra UI v2. Todos usan tokens semánticos.
  */
-import { cardAnatomy, alertAnatomy } from '@chakra-ui/anatomy'
+import { cardAnatomy, alertAnatomy, menuAnatomy, avatarAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers, defineStyleConfig } from '@chakra-ui/react'
 
 export const Button = defineStyleConfig({
@@ -127,4 +127,26 @@ export const Link = defineStyleConfig({
 
 export const Divider = defineStyleConfig({
     baseStyle: { borderColor: 'border.subtle', opacity: 1 }
+})
+
+// Menú desplegable del docente: superficie turquesa, sin fondo blanco
+const menu = createMultiStyleConfigHelpers(menuAnatomy.keys)
+export const Menu = menu.defineMultiStyleConfig({
+    baseStyle: {
+        list: { bg: 'bg.surface', borderColor: 'border.subtle', borderWidth: '1px', boxShadow: 'lg', py: 2 },
+        item: {
+            bg: 'transparent',
+            color: 'text.primary',
+            fontWeight: 'medium',
+            _hover: { bg: 'bg.surfaceMuted' },
+            _focus: { bg: 'bg.surfaceMuted' }
+        },
+        divider: { borderColor: 'border.subtle', opacity: 1 }
+    }
+})
+
+// Avatar con iniciales: navy con texto blanco
+const avatar = createMultiStyleConfigHelpers(avatarAnatomy.keys)
+export const Avatar = avatar.defineMultiStyleConfig({
+    baseStyle: { container: { bg: 'bg.sidebar', color: 'text.onDark' } }
 })

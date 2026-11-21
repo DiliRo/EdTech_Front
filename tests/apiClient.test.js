@@ -61,13 +61,23 @@ describe('Cliente HTTP', () => {
         })
     })
 
-    it('emite un evento de sesión inválida cuando el backend responde 401', async () => {
-        mockAdapter((config) => reply(config, 401, { success: false, message: 'Debes iniciar sesión' }))
+    it('emite un evento de sesión inválida cuando el backend rechaza el token (401)', async () => {
+        tokenStorage.set('token-vencido')
+        mockAdapter((config) => reply(config, 401, { success: false, message: 'Tu sesión expiró. Inicia sesión de nuevo.' }))
         const listener = vi.fn()
         window.addEventListener(UNAUTHORIZED_EVENT, listener)
         await expect(apiClient.get('/auth/me')).rejects.toMatchObject({ status: 401 })
         window.removeEventListener(UNAUTHORIZED_EVENT, listener)
         expect(listener).toHaveBeenCalledTimes(1)
+    })
+
+    it('un 401 sin token (contraseña incorrecta) no se trata como sesión expirada', async () => {
+        mockAdapter((config) => reply(config, 401, { success: false, message: 'Correo o contraseña incorrectos' }))
+        const listener = vi.fn()
+        window.addEventListener(UNAUTHORIZED_EVENT, listener)
+        await expect(apiClient.post('/auth/login', {})).rejects.toMatchObject({ status: 401 })
+        window.removeEventListener(UNAUTHORIZED_EVENT, listener)
+        expect(listener).not.toHaveBeenCalled()
     })
 })
 

@@ -1,10 +1,13 @@
 import '@testing-library/jest-dom/vitest'
 import { afterEach } from 'vitest'
 import { cleanup } from '@testing-library/react'
+import { restoreApi } from './mockApi.js'
 
 afterEach(() => {
     cleanup()
+    restoreApi()
     window.localStorage.clear()
+    window.sessionStorage.clear()
 })
 
 // jsdom no implementa matchMedia (lo usa Chakra UI)

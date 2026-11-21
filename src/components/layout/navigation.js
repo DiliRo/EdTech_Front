@@ -1,4 +1,4 @@
-import { FiHome, FiUsers, FiBookOpen, FiFileText, FiClipboard, FiTrendingUp } from 'react-icons/fi'
+import { FiHome, FiUsers, FiBookOpen, FiFileText, FiClipboard, FiTrendingUp, FiUser } from 'react-icons/fi'
 import { ROUTES } from '../../utils/constants.js'
 
 /**
@@ -11,5 +11,6 @@ export const NAV_ITEMS = Object.freeze([
     { label: 'Metodologías', to: ROUTES.methodologies, icon: FiBookOpen, available: false },
     { label: 'Guías de clase', to: ROUTES.lessonGuides, icon: FiFileText, available: false },
     { label: 'Evaluaciones', to: ROUTES.assessments, icon: FiClipboard, available: false },
-    { label: 'Seguimiento', to: ROUTES.experiments, icon: FiTrendingUp, available: false }
+    { label: 'Seguimiento', to: ROUTES.experiments, icon: FiTrendingUp, available: false },
+    { label: 'Mi perfil', to: ROUTES.profile, icon: FiUser, available: true }
 ])
