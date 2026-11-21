@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Button, Flex, Link, Stack, Text } from '@chakra-ui/react'
-import { FiArchive, FiArrowLeft, FiEdit2, FiInfo, FiRotateCcw, FiSearch, FiUserPlus, FiUsers } from 'react-icons/fi'
+import { FiArchive, FiArrowLeft, FiClipboard, FiEdit2, FiInfo, FiRotateCcw, FiSearch, FiUserPlus, FiUsers } from 'react-icons/fi'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import { PageHeader } from '../components/ui/PageHeader.jsx'
 import { SurfaceCard } from '../components/ui/SurfaceCard.jsx'
@@ -246,6 +246,9 @@ export const ClassroomDetailPage = () => {
                 actions={
                     data.isActive ? (
                         <>
+                            <Button as={RouterLink} to={ROUTES.classroomAssessments(data.id)} leftIcon={<FiClipboard />}>
+                                Evaluaciones
+                            </Button>
                             <Button variant="secondary" leftIcon={<FiEdit2 />} onClick={() => setEditing(true)}>
                                 Editar aula
                             </Button>
@@ -254,9 +257,14 @@ export const ClassroomDetailPage = () => {
                             </Button>
                         </>
                     ) : (
-                        <Button leftIcon={<FiRotateCcw />} onClick={handleRestore} isLoading={isRestoring} loadingText="Restaurando…">
-                            Restaurar aula
-                        </Button>
+                        <>
+                            <Button as={RouterLink} to={ROUTES.classroomAssessments(data.id)} variant="secondary" leftIcon={<FiClipboard />}>
+                                Evaluaciones
+                            </Button>
+                            <Button leftIcon={<FiRotateCcw />} onClick={handleRestore} isLoading={isRestoring} loadingText="Restaurando…">
+                                Restaurar aula
+                            </Button>
+                        </>
                     )
                 }
             />
