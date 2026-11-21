@@ -72,15 +72,18 @@ src/
 ├── components/
 │   ├── layout/               # Sidebar, NavItem, Header, navigation.js (elementos del menú)
 │   ├── feedback/             # LoadingState, ErrorState, EmptyState, AsyncContent
-│   ├── ui/                   # BrandLogo, PageHeader, SurfaceCard, FormField, PasswordInput…
+│   ├── auth/                 # ProtectedRoute, PublicOnlyRoute
+│   ├── ui/                   # BrandLogo, PageHeader, SurfaceCard, FormField, FormAlert, PasswordInput…
 │   └── ServerStatusCard.jsx  # estado real de GET /api/health
-├── pages/                    # LoginPage, RegisterPage, DashboardPage, ComingSoonPage, NotFoundPage
+├── pages/                    # Login, Register, Dashboard, Profile, ComingSoon, NotFound
 ├── services/
 │   ├── apiClient.js          # Axios centralizado (VITE_API_URL, token Bearer, errores)
+│   ├── auth.service.js       # POST /auth/register, POST /auth/login, GET /auth/me
+│   ├── teacher.service.js    # PATCH /teachers/me
 │   └── health.service.js
-├── hooks/                    # useAsync, useApiHealth, useAuth, useDocumentTitle
-├── context/                  # AuthContext (por ahora solo guarda/limpia el token)
-└── utils/                    # constantes, env, tokenStorage, apiError, validation
+├── hooks/                    # useAsync, useApiHealth, useAuth, useFormState, useDocumentTitle
+├── context/                  # AuthContext: sesión del docente
+└── utils/                    # constantes, env, jwt, tokenStorage, apiError, validation
 tests/                        # Vitest + Testing Library
 ```
 
@@ -89,12 +92,41 @@ tests/                        # Vitest + Testing Library
 | Ruta | Página |
 |---|---|
 | `/` | Redirige a `/dashboard` |
-| `/login`, `/register` | Inicio de sesión y registro (solo interfaz y validación) |
-| `/dashboard` | Panel principal: estado del servidor y secciones vacías |
-| `/aulas`, `/metodologias`, `/guias`, `/evaluaciones`, `/seguimiento` | "Módulo en preparación" |
+| `/login`, `/register` | Públicas: si ya hay sesión redirigen al panel |
+| `/dashboard` | Privada. Panel principal |
+| `/perfil` | Privada. Nombre, apellido e idioma preferido |
+| `/aulas`, `/metodologias`, `/guias`, `/evaluaciones`, `/seguimiento` | Privadas. "Módulo en preparación" |
 | cualquier otra | 404 |
 
-La protección de rutas privadas se agrega al conectar la autenticación.
+Sin sesión, una ruta privada lleva a `/login` y, al ingresar, se vuelve a la página pedida.
+
+## Autenticación y sesión
+
+Solo los docentes tienen cuenta; los estudiantes no inician sesión.
+
+| Acción | Endpoint del backend |
+|---|---|
+| Registro (la confirmación de contraseña solo se valida en el navegador, no se envía) | `POST /api/auth/register` |
+| Inicio de sesión | `POST /api/auth/login` |
+| Verificar la sesión al cargar la página | `GET /api/auth/me` |
+| Actualizar perfil (solo los campos cambiados) | `PATCH /api/teachers/me` |
+
+**Token.** El backend entrega un JWT (8 h por defecto) que se envía como `Authorization: Bearer`;
+no usa cookies. El frontend lo guarda en `sessionStorage` (se borra al cerrar la pestaña, útil en
+computadoras compartidas de la escuela). Nunca se guarda la contraseña. El cierre de sesión es
+local: borra el token (el backend no tiene endpoint de logout).
+
+**Sesión expirada.** Se detecta de tres formas y en todas se vuelve a `/login` con el aviso
+"Tu sesión expiró":
+1. Al cargar, si el token guardado ya venció (se lee `exp` del JWT, sin consultar al backend).
+2. Un temporizador cierra la sesión al llegar la hora de expiración.
+3. Cualquier respuesta 401 a una petición que llevaba token.
+
+Un 401 en el inicio de sesión (contraseña incorrecta) no se confunde con sesión expirada. Si el
+servidor no responde al verificar la sesión, se muestra un error con "Reintentar" sin borrar el token.
+
+**Idioma preferido.** Se guarda en el perfil. La interfaz sigue en español hasta contar con
+traducciones validadas al Q'eqchi', K'iche', Mam y Kaqchikel.
 
 ## Cliente HTTP
 
@@ -104,7 +136,7 @@ La protección de rutas privadas se agrega al conectar la autenticación.
 - Agrega `Authorization: Bearer <token>` si hay sesión.
 - Convierte los errores del backend (`{ success, message, errors: [{ field, message }] }`) a
   `{ status, message, fieldErrors, isNetworkError, isTimeout }`, sin modificar el contrato.
-- Ante un 401 emite el evento `etamanik:unauthorized`, que limpia la sesión.
+- Ante un 401 de una petición con token emite el evento `etamanik:unauthorized`, que cierra la sesión.
 
 ## Estados de carga, error y vacío
 

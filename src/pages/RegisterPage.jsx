@@ -1,77 +1,91 @@
 import { useState } from 'react'
 import { Button, Heading, Input, Link, Select, SimpleGrid, Stack, Text } from '@chakra-ui/react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { FormField } from '../components/ui/FormField.jsx'
+import { FormAlert } from '../components/ui/FormAlert.jsx'
 import { PasswordInput } from '../components/ui/PasswordInput.jsx'
-import { PendingFeatureNotice } from '../components/ui/PendingFeatureNotice.jsx'
+import { useAuth } from '../hooks/useAuth.js'
+import { useFormState } from '../hooks/useFormState.js'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
-import { validateEmail, validateName, validateNewPassword, collectErrors } from '../utils/validation.js'
+import { validateEmail, validateName, validateNewPassword, validatePasswordConfirmation } from '../utils/validation.js'
 import { LANGUAGES, ROUTES } from '../utils/constants.js'
 
-const INITIAL = { firstName: '', lastName: '', email: '', password: '', preferredLanguage: 'es' }
+const INITIAL = { firstName: '', lastName: '', email: '', password: '', confirmPassword: '', preferredLanguage: 'es' }
 
 /**
- * Registro de docentes (solo interfaz). Los campos coinciden con POST /api/auth/register:
- * firstName, lastName, email, password y preferredLanguage. La conexión se hace en el siguiente módulo.
+ * Registro de docentes (POST /api/auth/register). Solo los docentes tienen cuenta.
+ * La confirmación de contraseña se valida aquí y NO se envía al backend.
  */
 export const RegisterPage = () => {
     useDocumentTitle('Crear cuenta')
-    const [values, setValues] = useState(INITIAL)
-    const [errors, setErrors] = useState({})
-    const [submitted, setSubmitted] = useState(false)
+    const { register } = useAuth()
+    const navigate = useNavigate()
+    const form = useFormState(INITIAL)
+    const [isSubmitting, setSubmitting] = useState(false)
+    const { values } = form
 
-    const update = (field) => (event) => {
-        setValues((v) => ({ ...v, [field]: event.target.value }))
-        setErrors((e) => ({ ...e, [field]: undefined }))
-        setSubmitted(false)
-    }
-
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault()
-        const found = collectErrors({
+        const valid = form.validate({
             firstName: validateName(values.firstName, 'El nombre'),
             lastName: validateName(values.lastName, 'El apellido'),
             email: validateEmail(values.email),
-            password: validateNewPassword(values.password)
+            password: validateNewPassword(values.password),
+            confirmPassword: validatePasswordConfirmation(values.password, values.confirmPassword)
         })
-        setErrors(found)
-        setSubmitted(Object.keys(found).length === 0)
+        if (!valid) return
+
+        setSubmitting(true)
+        try {
+            const { confirmPassword: _confirmation, ...data } = values
+            await register(data)
+            navigate(ROUTES.dashboard, { replace: true })
+        } catch (error) {
+            form.applyServerError(error)
+            setSubmitting(false)
+        }
     }
 
     return (
-        <Stack as="form" spacing={5} onSubmit={handleSubmit} noValidate>
+        <Stack as="form" spacing={5} onSubmit={handleSubmit} noValidate aria-labelledby="register-title">
             <Stack spacing={1}>
-                <Heading as="h1" size="lg">
-                    Crear cuenta
+                <Heading as="h1" id="register-title" size="lg">
+                    Crear cuenta de docente
                 </Heading>
-                <Text>Solo los docentes tienen cuenta. Los estudiantes se registran después con un código.</Text>
+                <Text>Solo los docentes tienen cuenta. Los estudiantes se registran después, en tus aulas, con un código.</Text>
             </Stack>
 
+            <FormAlert>{form.formError}</FormAlert>
+
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                <FormField id="firstName" label="Nombre" error={errors.firstName} isRequired>
-                    <Input autoComplete="given-name" value={values.firstName} onChange={update('firstName')} />
+                <FormField id="firstName" label="Nombre" error={form.errors.firstName} isRequired>
+                    <Input autoComplete="given-name" {...form.field('firstName')} />
                 </FormField>
-                <FormField id="lastName" label="Apellido" error={errors.lastName} isRequired>
-                    <Input autoComplete="family-name" value={values.lastName} onChange={update('lastName')} />
+                <FormField id="lastName" label="Apellido" error={form.errors.lastName} isRequired>
+                    <Input autoComplete="family-name" {...form.field('lastName')} />
                 </FormField>
             </SimpleGrid>
 
-            <FormField id="email" label="Correo electrónico" error={errors.email} isRequired>
-                <Input type="email" autoComplete="email" value={values.email} onChange={update('email')} />
+            <FormField id="email" label="Correo electrónico" error={form.errors.email} isRequired>
+                <Input type="email" autoComplete="email" inputMode="email" {...form.field('email')} />
             </FormField>
 
             <FormField
                 id="password"
                 label="Contraseña"
-                error={errors.password}
+                error={form.errors.password}
                 helper="Mínimo 8 caracteres, con mayúscula, minúscula y número."
                 isRequired
             >
-                <PasswordInput autoComplete="new-password" value={values.password} onChange={update('password')} />
+                <PasswordInput autoComplete="new-password" {...form.field('password')} />
             </FormField>
 
-            <FormField id="preferredLanguage" label="Idioma preferido">
-                <Select value={values.preferredLanguage} onChange={update('preferredLanguage')}>
+            <FormField id="confirmPassword" label="Confirmar contraseña" error={form.errors.confirmPassword} isRequired>
+                <PasswordInput autoComplete="new-password" {...form.field('confirmPassword')} />
+            </FormField>
+
+            <FormField id="preferredLanguage" label="Idioma preferido" helper="Puedes cambiarlo después en tu perfil.">
+                <Select {...form.field('preferredLanguage')}>
                     {LANGUAGES.map((language) => (
                         <option key={language.code} value={language.code}>
                             {language.name}
@@ -80,13 +94,7 @@ export const RegisterPage = () => {
                 </Select>
             </FormField>
 
-            {submitted && (
-                <PendingFeatureNotice>
-                    Los datos son válidos. El registro se conectará con el servidor en el siguiente módulo.
-                </PendingFeatureNotice>
-            )}
-
-            <Button type="submit" size="lg" w="full">
+            <Button type="submit" size="lg" w="full" isLoading={isSubmitting} loadingText="Creando cuenta…">
                 Crear cuenta
             </Button>
 

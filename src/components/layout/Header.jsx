@@ -1,18 +1,19 @@
-import { Box, Button, Flex, IconButton, Text } from '@chakra-ui/react'
-import { FiLogOut, FiMenu } from 'react-icons/fi'
+import { Avatar, Box, Button, Flex, IconButton, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Text } from '@chakra-ui/react'
+import { FiChevronDown, FiLogOut, FiMenu, FiUser } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import { BrandLogo } from '../ui/BrandLogo.jsx'
 import { useAuth } from '../../hooks/useAuth.js'
 import { ROUTES } from '../../utils/constants.js'
 
-/** Encabezado superior: botón de menú (móvil), logotipo en móvil y acciones de sesión. */
+/** Encabezado: botón de menú (móvil), logotipo en móvil y menú del docente. */
 export const Header = ({ onOpenMenu }) => {
-    const { isAuthenticated, clearSession } = useAuth()
+    const { teacher, logout } = useAuth()
     const navigate = useNavigate()
+    const fullName = teacher ? `${teacher.firstName} ${teacher.lastName}` : ''
 
     const handleLogout = () => {
-        clearSession()
-        navigate(ROUTES.login)
+        logout()
+        navigate(ROUTES.login, { replace: true })
     }
 
     return (
@@ -46,15 +47,31 @@ export const Header = ({ onOpenMenu }) => {
                 </Text>
             </Flex>
 
-            {isAuthenticated ? (
-                <Button size="sm" variant="secondary" leftIcon={<FiLogOut />} onClick={handleLogout}>
-                    Cerrar sesión
-                </Button>
-            ) : (
-                <Button size="sm" variant="primary" onClick={() => navigate(ROUTES.login)}>
-                    Iniciar sesión
-                </Button>
-            )}
+            <Menu placement="bottom-end">
+                <MenuButton as={Button} variant="ghost" px={2} rightIcon={<FiChevronDown />} aria-label={`Menú de ${fullName}`}>
+                    <Flex align="center" gap={2}>
+                        <Avatar size="sm" name={fullName} />
+                        <Text as="span" display={{ base: 'none', md: 'inline' }} color="text.primary" noOfLines={1} maxW="200px">
+                            {fullName}
+                        </Text>
+                    </Flex>
+                </MenuButton>
+                <MenuList>
+                    <Box px={3} py={2}>
+                        <Text fontWeight="semibold" color="text.primary">
+                            {fullName}
+                        </Text>
+                        <Text fontSize="sm">{teacher?.email}</Text>
+                    </Box>
+                    <MenuDivider />
+                    <MenuItem icon={<FiUser />} onClick={() => navigate(ROUTES.profile)}>
+                        Mi perfil
+                    </MenuItem>
+                    <MenuItem icon={<FiLogOut />} onClick={handleLogout}>
+                        Cerrar sesión
+                    </MenuItem>
+                </MenuList>
+            </Menu>
         </Flex>
     )
 }

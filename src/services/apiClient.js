@@ -3,7 +3,10 @@ import { API_URL, API_TIMEOUT_MS } from '../utils/env.js'
 import { tokenStorage } from '../utils/tokenStorage.js'
 import { normalizeApiError } from '../utils/apiError.js'
 
-/** Evento que se emite cuando el backend responde 401 (sesión inválida o expirada). */
+/**
+ * Evento que se emite cuando el backend rechaza el token (401 en una petición que llevaba
+ * `Authorization`). Un 401 sin token (p. ej. contraseña incorrecta en el login) no lo emite.
+ */
 export const UNAUTHORIZED_EVENT = 'etamanik:unauthorized'
 
 /**
@@ -28,7 +31,8 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         const normalized = normalizeApiError(error)
-        if (normalized.status === 401 && typeof window !== 'undefined') {
+        const sentToken = Boolean(error?.config?.headers?.Authorization)
+        if (normalized.status === 401 && sentToken && typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT))
         }
         return Promise.reject(normalized)

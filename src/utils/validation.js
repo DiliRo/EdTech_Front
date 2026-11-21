@@ -34,3 +34,9 @@ export const validateNewPassword = (value) => {
 /** Devuelve solo los campos con error. */
 export const collectErrors = (validators) =>
     Object.fromEntries(Object.entries(validators).filter(([, message]) => Boolean(message)))
+
+export const validatePasswordConfirmation = (password, confirmation) => {
+    if (!confirmation) return 'Confirma la contraseña'
+    if (password !== confirmation) return 'Las contraseñas no coinciden'
+    return null
+}

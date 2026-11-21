@@ -5,6 +5,7 @@ import { SurfaceCard } from '../components/ui/SurfaceCard.jsx'
 import { EmptyState } from '../components/feedback/EmptyState.jsx'
 import { ServerStatusCard } from '../components/ServerStatusCard.jsx'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
+import { useAuth } from '../hooks/useAuth.js'
 
 /**
  * Panel principal. Por ahora solo muestra el estado real del servidor; las secciones de aulas y
@@ -12,10 +13,14 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
  */
 export const DashboardPage = () => {
     useDocumentTitle('Inicio')
+    const { teacher } = useAuth()
 
     return (
         <Stack spacing={6}>
-            <PageHeader title="Panel principal" description="Resumen de tu trabajo en Etamanïk." />
+            <PageHeader
+                title={teacher ? `Hola, ${teacher.firstName}` : 'Panel principal'}
+                description="Resumen de tu trabajo en Etamanïk."
+            />
 
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                 <ServerStatusCard />
