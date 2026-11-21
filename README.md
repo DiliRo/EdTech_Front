@@ -77,6 +77,7 @@ src/
 │   ├── classrooms/           # ClassroomCard, ClassroomFormModal, ClassroomInfo, StudentTable, StudentFormModal…
 │   ├── common/               # ConfirmDialog, Pagination, SearchInput, SegmentedControl
 │   ├── methodologies/        # MethodologyCard, MethodologyFilters, MethodologyContent, MethodologyForm, ListEditor…
+│   ├── assessments/          # GradesTable, AssessmentFormModal, ClassroomPerformance, StudentHistory, PercentChart, Indicators…
 │   ├── ui/                   # BrandLogo, PageHeader, SurfaceCard, FormField, FormAlert, PasswordInput…
 │   └── ServerStatusCard.jsx  # estado real de GET /api/health
 ├── pages/                    # Login, Register, Dashboard, Curriculum, Classrooms, Methodologies, Profile…
@@ -88,10 +89,11 @@ src/
 │   ├── classroom.service.js  # /classrooms (B4)
 │   ├── student.service.js    # /classrooms/:id/students, /students/:id (B4)
 │   ├── methodology.service.js # /methodologies (B5)
+│   ├── assessment.service.js # /assessments, /classrooms/:id/performance, /students/:id/results|progress (B6)
 │   └── health.service.js
 ├── hooks/                    # useAsync, useQuery, usePagination, useNotify, useAuth, useFormState…
 ├── context/                  # AuthContext (sesión) y GuidePlanningContext (metodología para la próxima guía)
-└── utils/                    # constantes, env, jwt, tokenStorage, apiError, validation, catalog, classroom, text
+└── utils/                    # constantes, env, jwt, tokenStorage, apiError, validation, catalog, classroom, methodology, assessment, text
 tests/                        # Vitest + Testing Library
 ```
 
@@ -109,7 +111,11 @@ tests/                        # Vitest + Testing Library
 | `/metodologias` | Privada. Metodologías predeterminadas y propias, con filtros |
 | `/metodologias/nueva`, `/metodologias/:id/editar` | Privadas. Formulario de metodología personalizada |
 | `/metodologias/:id` | Privada. Detalle de una metodología |
-| `/guias`, `/evaluaciones`, `/seguimiento` | Privadas. "Módulo en preparación" |
+| `/evaluaciones` | Privada. Elegir el aula |
+| `/aulas/:classroomId/evaluaciones` | Privada. Evaluaciones del aula (`?vista=seguimiento` para el seguimiento) |
+| `/evaluaciones/:assessmentId` | Privada. Detalle y tabla editable de calificaciones |
+| `/estudiantes/:studentId/seguimiento` | Privada. Historial y evolución de un estudiante (por código) |
+| `/guias`, `/seguimiento` | Privadas. "Módulo en preparación" |
 | cualquier otra | 404 |
 
 Sin sesión, una ruta privada lleva a `/login` y, al ingresar, se vuelve a la página pedida.
@@ -208,6 +214,32 @@ Consulta de solo lectura del catálogo curricular (módulo B3 del backend):
   (`etamanik.guidePlanning`) solo `{ teacherId, methodology: { id, name, isDefault } }`. El módulo de
   guías leerá `useGuidePlanning().selectedMethodology.id` y lo enviará como `teachingMethodId`.
   La selección se borra al cerrar sesión o la pestaña, y al archivar esa metodología.
+
+## Evaluaciones y seguimiento (`/evaluaciones`)
+
+| Acción | Endpoint (B6) |
+|---|---|
+| Evaluaciones de un aula (filtros materia, tipo, fechas) | `GET /api/assessments?classroomId=…` |
+| Crear evaluación | `POST /api/assessments` |
+| Detalle + calificaciones + estudiantes sin nota | `GET /api/assessments/:id` |
+| Registrar / corregir calificaciones | `POST /api/assessments/:id/results` |
+| Seguimiento del aula | `GET /api/classrooms/:id/performance?subjectId=&threshold=` |
+| Historial y evolución de un estudiante | `GET /api/students/:id/results`, `GET /api/students/:id/progress?threshold=` |
+
+- **Calificación faltante ≠ cero.** Una celda vacía no se envía; se muestra "Sin calificación" con
+  borde discontinuo. Un `0` es una nota válida (0 %). Una nota registrada se puede corregir (con
+  motivo opcional; el backend conserva el valor anterior), pero no borrar: B6 no tiene ese endpoint.
+- **Escala siempre visible:** "Escala: 0 a N" en listados y detalle, y "nota / máximo" en tablas.
+- **Datos suficientes** (reglas de presentación, `src/utils/assessment.js`): estadísticas de un aula o
+  de una evaluación con 3 o más calificaciones; promedio, tendencia e indicador de un estudiante con 2
+  o más; gráficos con 2 o más puntos. Con menos, se explica en lugar de calcular.
+- **Umbral de revisión configurable** (0–100 %): se envía como `threshold` y queda en la URL
+  (`?umbral=`); sin valor se usa el predeterminado del backend. El indicador se llama "Revisión
+  sugerida" y siempre va con la nota del backend: es apoyo al docente, no un diagnóstico.
+- **Cronología:** gráficos e historial van de la evaluación más antigua a la más reciente. Las fechas
+  se muestran en UTC (como las guarda el backend) para no correrlas un día.
+- **Gráficos:** Recharts 3 (compatible con React 19), cargado bajo demanda. Cada gráfico tiene una
+  descripción para lectores de pantalla y una tabla "Ver datos del gráfico".
 
 ## Cliente HTTP
 

@@ -23,3 +23,12 @@ if (!window.matchMedia) {
         dispatchEvent: () => false
     })
 }
+
+// jsdom no implementa ResizeObserver (lo usa el contenedor responsivo de Recharts)
+if (!window.ResizeObserver) {
+    window.ResizeObserver = class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+    }
+}

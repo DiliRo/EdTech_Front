@@ -1,5 +1,7 @@
 import { Badge, Button, Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, VisuallyHidden } from '@chakra-ui/react'
-import { FiEdit2, FiRotateCcw, FiUserMinus } from 'react-icons/fi'
+import { FiEdit2, FiRotateCcw, FiTrendingUp, FiUserMinus } from 'react-icons/fi'
+import { Link as RouterLink } from 'react-router-dom'
+import { ROUTES } from '../../utils/constants.js'
 import { formatDate } from '../../utils/classroom.js'
 
 const StudentStatus = ({ isActive }) =>
@@ -47,6 +49,16 @@ export const StudentTable = ({ students, onEdit, onWithdraw, onReinstate, canRei
                         <Td display={{ base: 'none', md: 'table-cell' }}>{formatDate(student.createdAt)}</Td>
                         <Td>
                             <Flex justify="flex-end" gap={1} wrap="wrap">
+                                <Button
+                                    as={RouterLink}
+                                    to={ROUTES.studentProgress(student.id)}
+                                    size="xs"
+                                    variant="ghost"
+                                    leftIcon={<FiTrendingUp />}
+                                    aria-label={`Historial de ${student.studentCode}`}
+                                >
+                                    Historial
+                                </Button>
                                 <Button size="xs" variant="ghost" leftIcon={<FiEdit2 />} onClick={() => onEdit(student)} aria-label={`Editar código ${student.studentCode}`}>
                                     Editar
                                 </Button>

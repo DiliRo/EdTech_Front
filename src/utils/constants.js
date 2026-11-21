@@ -16,6 +16,9 @@ export const ROUTES = Object.freeze({
     methodologyEdit: (id) => `/metodologias/${encodeURIComponent(id)}/editar`,
     lessonGuides: '/guias',
     assessments: '/evaluaciones',
+    assessmentDetail: (id) => `/evaluaciones/${encodeURIComponent(id)}`,
+    classroomAssessments: (id) => `/aulas/${encodeURIComponent(id)}/evaluaciones`,
+    studentProgress: (id) => `/estudiantes/${encodeURIComponent(id)}/seguimiento`,
     experiments: '/seguimiento',
     profile: '/perfil'
 })

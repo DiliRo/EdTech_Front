@@ -13,6 +13,10 @@ import { ClassroomDetailPage } from './pages/ClassroomDetailPage.jsx'
 import { MethodologiesPage } from './pages/MethodologiesPage.jsx'
 import { MethodologyDetailPage } from './pages/MethodologyDetailPage.jsx'
 import { MethodologyFormPage } from './pages/MethodologyFormPage.jsx'
+import { AssessmentsHomePage } from './pages/AssessmentsHomePage.jsx'
+import { ClassroomAssessmentsPage } from './pages/ClassroomAssessmentsPage.jsx'
+import { AssessmentDetailPage } from './pages/AssessmentDetailPage.jsx'
+import { StudentProgressPage } from './pages/StudentProgressPage.jsx'
 import { ComingSoonPage } from './pages/ComingSoonPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { NAV_ITEMS } from './components/layout/navigation.js'
@@ -51,6 +55,10 @@ export const routes = [
             { path: ROUTES.methodologyNew, element: <MethodologyFormPage /> },
             { path: `${ROUTES.methodologies}/:methodologyId`, element: <MethodologyDetailPage /> },
             { path: `${ROUTES.methodologies}/:methodologyId/editar`, element: <MethodologyFormPage /> },
+            { path: ROUTES.assessments, element: <AssessmentsHomePage /> },
+            { path: `${ROUTES.assessments}/:assessmentId`, element: <AssessmentDetailPage /> },
+            { path: `${ROUTES.classrooms}/:classroomId/evaluaciones`, element: <ClassroomAssessmentsPage /> },
+            { path: '/estudiantes/:studentId/seguimiento', element: <StudentProgressPage /> },
             { path: ROUTES.profile, element: <ProfilePage /> },
             ...NAV_ITEMS.filter((item) => !item.available).map((item) => ({
                 path: item.to,
