@@ -10,7 +10,7 @@ Stack: React 19 · Vite · Chakra UI v2 · React Router 7 · Axios · Vitest + T
 
 ## Instalación y ejecución
 
-Requisitos: Node.js 20.19 o superior y el backend corriendo (por defecto en `http://localhost:3000`).
+Requisitos: Node.js 20.19 o superior. Por defecto el frontend usa el backend desplegado en `https://etemanik-backend.onrender.com`.
 
 ```bash
 git clone https://github.com/DiliRo/EdTech_Front.git
@@ -32,8 +32,8 @@ npm run dev                 # http://localhost:5173
 
 | Variable | Por defecto | Descripción |
 |---|---|---|
-| `VITE_API_URL` | `http://localhost:3000/api` | URL del backend, **incluyendo `/api`** |
-| `VITE_API_TIMEOUT_MS` | `15000` | Tiempo máximo de espera por petición |
+| `VITE_API_URL` | `https://etemanik-backend.onrender.com/api` | URL del backend, **incluyendo `/api`**. Para un backend local: `http://localhost:3000/api` |
+| `VITE_API_TIMEOUT_MS` | `60000` | Tiempo máximo de espera por petición (Render puede tardar ~1 min en despertar el servicio gratuito) |
 
 El backend debe permitir el origen del frontend: en su `.env`, `CORS_ORIGIN=http://localhost:5173`.
 
