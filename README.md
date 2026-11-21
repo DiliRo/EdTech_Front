@@ -74,18 +74,22 @@ src/
 │   ├── feedback/             # LoadingState, ErrorState, EmptyState, AsyncContent
 │   ├── auth/                 # ProtectedRoute, PublicOnlyRoute
 │   ├── catalog/              # OptionGroup, GradeSelector, SubjectSelector, TopicSelector, TopicDetail
+│   ├── classrooms/           # ClassroomCard, ClassroomFormModal, ClassroomInfo, StudentTable, StudentFormModal…
+│   ├── common/               # ConfirmDialog, Pagination, SearchInput, SegmentedControl
 │   ├── ui/                   # BrandLogo, PageHeader, SurfaceCard, FormField, FormAlert, PasswordInput…
 │   └── ServerStatusCard.jsx  # estado real de GET /api/health
-├── pages/                    # Login, Register, Dashboard, Curriculum, Profile, ComingSoon, NotFound
+├── pages/                    # Login, Register, Dashboard, Curriculum, Classrooms, ClassroomDetail, Profile…
 ├── services/
 │   ├── apiClient.js          # Axios centralizado (VITE_API_URL, token Bearer, errores)
 │   ├── auth.service.js       # POST /auth/register, POST /auth/login, GET /auth/me
 │   ├── teacher.service.js    # PATCH /teachers/me
 │   ├── catalog.service.js    # GET /grades, /subjects, /topics, /topics/:id
+│   ├── classroom.service.js  # /classrooms (B4)
+│   ├── student.service.js    # /classrooms/:id/students, /students/:id (B4)
 │   └── health.service.js
-├── hooks/                    # useAsync, useQuery, useApiHealth, useAuth, useFormState, useDocumentTitle
+├── hooks/                    # useAsync, useQuery, usePagination, useNotify, useAuth, useFormState…
 ├── context/                  # AuthContext: sesión del docente
-└── utils/                    # constantes, env, jwt, tokenStorage, apiError, validation, catalog, text
+└── utils/                    # constantes, env, jwt, tokenStorage, apiError, validation, catalog, classroom, text
 tests/                        # Vitest + Testing Library
 ```
 
@@ -98,7 +102,9 @@ tests/                        # Vitest + Testing Library
 | `/dashboard` | Privada. Panel principal |
 | `/curriculo` | Privada. Grados → materias → temas → contenido curricular |
 | `/perfil` | Privada. Nombre, apellido e idioma preferido |
-| `/aulas`, `/metodologias`, `/guias`, `/evaluaciones`, `/seguimiento` | Privadas. "Módulo en preparación" |
+| `/aulas` | Privada. Aulas del docente: filtros, búsqueda, paginación, crear, editar, archivar, restaurar |
+| `/aulas/:classroomId` | Privada. Información del aula y sus estudiantes |
+| `/metodologias`, `/guias`, `/evaluaciones`, `/seguimiento` | Privadas. "Módulo en preparación" |
 | cualquier otra | 404 |
 
 Sin sesión, una ruta privada lleva a `/login` y, al ingresar, se vuelve a la página pedida.
@@ -152,6 +158,30 @@ Consulta de solo lectura del catálogo curricular (módulo B3 del backend):
   referencia curricular se indica su ausencia. Los registros con `isSample` /
   `containsSampleData` muestran el aviso "no proviene del CNB".
 - Los selectores son grupos de radios accesibles (teclado y lector de pantalla).
+
+## Aulas y estudiantes (`/aulas`)
+
+| Acción | Endpoint (B4) |
+|---|---|
+| Listar aulas | `GET /api/classrooms?status=active\|archived\|all` |
+| Crear / editar aula | `POST /api/classrooms`, `PATCH /api/classrooms/:id` (solo los campos que cambiaron) |
+| Detalle | `GET /api/classrooms/:id` (404 si no existe o es de otro docente) |
+| Archivar / restaurar aula | `DELETE /api/classrooms/:id` / `PATCH … { isActive: true }` |
+| Listar estudiantes | `GET /api/classrooms/:id/students?status=…` |
+| Agregar estudiante | `POST /api/classrooms/:id/students { studentCode }` |
+| Editar código / reincorporar | `PATCH /api/students/:id { studentCode }` / `{ isActive: true }` |
+| Retirar estudiante | `DELETE /api/students/:id` (archivado lógico) |
+
+- Los estudiantes no tienen cuenta: el único dato que se pide y se envía es `studentCode`
+  (se guarda en MAYÚSCULAS y es único dentro del aula, incluidos los retirados).
+- Grado y materias del formulario de aula salen del catálogo B3 (`/grades`, `/subjects?grade=`):
+  solo se ofrecen las materias del grado elegido.
+- El backend no pagina ni busca aulas o estudiantes: la búsqueda y la paginación (9 aulas, 20
+  estudiantes por página) se hacen en el navegador sobre la lista recibida.
+- Archivar un aula y retirar a un estudiante piden confirmación. Nada se borra.
+- Después de cada operación se vuelve a consultar la lista (sin perder búsqueda ni página) y se
+  muestra un aviso. Si falla, el mensaje del backend aparece en el formulario o el diálogo.
+- Los estudiantes solo se muestran en el detalle de un aula propia; sus códigos no van en la URL.
 
 ## Cliente HTTP
 

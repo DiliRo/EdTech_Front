@@ -9,6 +9,7 @@ export const ROUTES = Object.freeze({
     dashboard: '/dashboard',
     curriculum: '/curriculo',
     classrooms: '/aulas',
+    classroomDetail: (id) => `/aulas/${encodeURIComponent(id)}`,
     methodologies: '/metodologias',
     lessonGuides: '/guias',
     assessments: '/evaluaciones',

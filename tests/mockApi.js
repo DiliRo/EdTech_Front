@@ -21,7 +21,7 @@ export const mockApi = (routes) => {
         }
         calls.push(request)
 
-        const handler = routes[`${method} ${config.url}`]
+        const handler = routes[`${method} ${config.url}`] ?? matchPattern(routes, method, config.url, request)
         if (!handler) throw new Error(`Ruta no simulada: ${method} ${config.url}`)
         const result = await handler(request)
         if (result instanceof Error) throw Object.assign(result, { config })
@@ -32,6 +32,22 @@ export const mockApi = (routes) => {
         throw new AxiosError(`HTTP ${result.status}`, AxiosError.ERR_BAD_RESPONSE, config, null, response)
     }
     return calls
+}
+
+/** Rutas con parámetros, p. ej. 'GET /classrooms/:id' → request.pathParams.id */
+const matchPattern = (routes, method, url, request) => {
+    for (const [key, handler] of Object.entries(routes)) {
+        const [routeMethod, pattern] = key.split(' ')
+        if (routeMethod !== method || !pattern.includes(':')) continue
+        const names = []
+        const regex = new RegExp(`^${pattern.replace(/:([a-zA-Z]+)/g, (_, name) => (names.push(name), '([^/]+)'))}$`)
+        const match = url.match(regex)
+        if (match) {
+            request.pathParams = Object.fromEntries(names.map((name, i) => [name, decodeURIComponent(match[i + 1])]))
+            return handler
+        }
+    }
+    return null
 }
 
 export const restoreApi = () => {

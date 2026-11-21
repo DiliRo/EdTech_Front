@@ -38,13 +38,19 @@ export const useFormState = (initialValues) => {
     }
 
     const applyServerError = (error) => {
-        const fieldErrors = error?.fieldErrors ?? {}
-        const known = Object.fromEntries(Object.entries(fieldErrors).filter(([name]) => name in values))
+        // El backend puede marcar elementos de una lista (p. ej. "subjectIds[2]"): se asignan al campo
+        const known = {}
+        const unknown = []
+        for (const [name, message] of Object.entries(error?.fieldErrors ?? {})) {
+            const base = name.replace(/\[\d+\]$/, '')
+            if (base in values) known[base] ??= message
+            else unknown.push(message)
+        }
         setErrors(known)
         const [first] = Object.keys(known)
         if (first) focusField(first)
-        // Si el error no corresponde a un campo, se muestra arriba del formulario
-        setFormError(first && known[first] === error?.message ? null : error?.message ?? null)
+        // Arriba del formulario: el mensaje general si ningún error es de un campo visible
+        setFormError(first ? (unknown.length ? unknown.join('. ') : null) : error?.message ?? null)
     }
 
     const reset = useCallback((next) => {
