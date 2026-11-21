@@ -6,7 +6,7 @@ const originalAdapter = apiClient.defaults.adapter
 /**
  * Reemplaza la red por respuestas simuladas con el formato del backend.
  * `routes`: { 'POST /auth/login': (request) => ({ status, body }) | Error }
- * Devuelve la lista de peticiones realizadas (método, url, cuerpo y cabeceras).
+ * Devuelve la lista de peticiones realizadas (método, url, parámetros, cuerpo y cabeceras).
  */
 export const mockApi = (routes) => {
     const calls = []
@@ -15,6 +15,7 @@ export const mockApi = (routes) => {
         const request = {
             method,
             url: config.url,
+            params: { ...config.params },
             body: config.data ? JSON.parse(config.data) : undefined,
             headers: { ...config.headers }
         }

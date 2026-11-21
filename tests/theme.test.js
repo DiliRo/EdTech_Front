@@ -87,7 +87,12 @@ describe('Contraste (WCAG AA: 4.5:1 para texto normal)', () => {
         ['status.error', 'bg.surface'],
         ['status.success', 'status.successBg'],
         ['status.warning', 'status.warningBg'],
-        ['navy.500', 'turquoise.500'] // insignia "Próximamente" en el menú
+        ['navy.500', 'turquoise.500'], // insignia "Próximamente" en el menú
+        ['text.primary', 'bg.option'],
+        ['text.secondary', 'bg.option'],
+        ['text.primary', 'bg.optionSelected'],
+        ['text.secondary', 'bg.optionSelected'],
+        ['text.primary', 'bg.optionHover']
     ]
 
     for (const [text, bg] of pairs) {
@@ -95,4 +100,11 @@ describe('Contraste (WCAG AA: 4.5:1 para texto normal)', () => {
             expect(contrast(text, bg)).toBeGreaterThanOrEqual(4.5)
         })
     }
+})
+
+describe('Opciones seleccionadas', () => {
+    it('el borde de la opción seleccionada se distingue del fondo (contraste ≥ 3:1)', () => {
+        expect(contrast('border.selected', 'bg.optionSelected')).toBeGreaterThanOrEqual(3)
+        expect(contrast('border.selected', 'bg.surface')).toBeGreaterThanOrEqual(3)
+    })
 })
