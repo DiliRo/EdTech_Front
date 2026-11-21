@@ -1,15 +1,16 @@
 import { SimpleGrid, Stack } from '@chakra-ui/react'
-import { FiUsers, FiFileText } from 'react-icons/fi'
+import { FiFileText } from 'react-icons/fi'
 import { PageHeader } from '../components/ui/PageHeader.jsx'
 import { SurfaceCard } from '../components/ui/SurfaceCard.jsx'
 import { EmptyState } from '../components/feedback/EmptyState.jsx'
 import { ServerStatusCard } from '../components/ServerStatusCard.jsx'
+import { DashboardClassrooms } from '../components/classrooms/DashboardClassrooms.jsx'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { useAuth } from '../hooks/useAuth.js'
 
 /**
- * Panel principal. Por ahora solo muestra el estado real del servidor; las secciones de aulas y
- * guías se llenarán con datos del backend en los siguientes módulos (sin datos de ejemplo).
+ * Panel principal: estado del servidor y aulas activas del docente. La sección de guías se llenará
+ * con datos del backend en su módulo (sin datos de ejemplo).
  */
 export const DashboardPage = () => {
     useDocumentTitle('Inicio')
@@ -25,12 +26,7 @@ export const DashboardPage = () => {
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                 <ServerStatusCard />
 
-                <SurfaceCard title="Mis aulas" icon={FiUsers}>
-                    <EmptyState
-                        title="Todavía no hay aulas para mostrar"
-                        description="La gestión de aulas y estudiantes estará disponible en un próximo módulo."
-                    />
-                </SurfaceCard>
+                <DashboardClassrooms />
 
                 <SurfaceCard title="Guías de clase recientes" icon={FiFileText} gridColumn={{ md: 'span 2' }}>
                     <EmptyState

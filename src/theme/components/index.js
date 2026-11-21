@@ -1,7 +1,7 @@
 /**
  * Estilos de componentes de Chakra UI v2. Todos usan tokens semánticos.
  */
-import { cardAnatomy, alertAnatomy, menuAnatomy, avatarAnatomy } from '@chakra-ui/anatomy'
+import { cardAnatomy, alertAnatomy, menuAnatomy, avatarAnatomy, modalAnatomy, checkboxAnatomy, tableAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers, defineStyleConfig } from '@chakra-ui/react'
 
 export const Button = defineStyleConfig({
@@ -149,4 +149,58 @@ export const Menu = menu.defineMultiStyleConfig({
 const avatar = createMultiStyleConfigHelpers(avatarAnatomy.keys)
 export const Avatar = avatar.defineMultiStyleConfig({
     baseStyle: { container: { bg: 'bg.sidebar', color: 'text.onDark' } }
+})
+
+// Ventanas modales y diálogos de confirmación: superficie turquesa, nunca blanca
+const modal = createMultiStyleConfigHelpers(modalAnatomy.keys)
+export const Modal = modal.defineMultiStyleConfig({
+    baseStyle: {
+        overlay: { bg: 'rgba(23, 50, 77, 0.55)' },
+        dialog: { bg: 'bg.surface', color: 'text.secondary', borderRadius: 'xl', borderWidth: '1px', borderColor: 'border.subtle', mx: 4 },
+        header: { color: 'text.primary', fontSize: 'xl', fontWeight: 'bold' },
+        closeButton: { color: 'text.primary', _hover: { bg: 'bg.surfaceMuted' } },
+        footer: { gap: 3 }
+    }
+})
+
+// Casillas: borde navy y relleno navy al marcar
+const checkbox = createMultiStyleConfigHelpers(checkboxAnatomy.keys)
+export const Checkbox = checkbox.defineMultiStyleConfig({
+    baseStyle: {
+        control: {
+            borderColor: 'border.strong',
+            bg: 'bg.input',
+            _checked: { bg: 'bg.sidebar', borderColor: 'border.strong', color: 'text.onDark', _hover: { bg: 'bg.sidebarHover', borderColor: 'border.strong' } },
+            _focusVisible: { boxShadow: '0 0 0 3px var(--chakra-colors-navy-300)' }
+        },
+        label: { color: 'text.secondary' }
+    }
+})
+
+// Tablas: encabezado navy y filas alternas en turquesa suave
+const table = createMultiStyleConfigHelpers(tableAnatomy.keys)
+export const Table = table.defineMultiStyleConfig({
+    variants: {
+        etamanik: {
+            table: { borderCollapse: 'separate', borderSpacing: 0 },
+            th: {
+                bg: 'bg.sidebar',
+                color: 'text.onDark',
+                fontSize: 'xs',
+                letterSpacing: 'wider',
+                textTransform: 'uppercase',
+                py: 3,
+                _first: { borderTopLeftRadius: 'md' },
+                _last: { borderTopRightRadius: 'md' }
+            },
+            td: { color: 'text.secondary', py: 3, borderBottomWidth: '1px', borderColor: 'border.subtle' },
+            tbody: {
+                tr: {
+                    '&:nth-of-type(odd)': { bg: 'bg.option' },
+                    '&:nth-of-type(even)': { bg: 'bg.optionHover' }
+                }
+            }
+        }
+    },
+    defaultProps: { variant: 'etamanik' }
 })

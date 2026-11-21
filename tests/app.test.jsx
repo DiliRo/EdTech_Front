@@ -12,6 +12,7 @@ const signedIn = (extraRoutes = {}) => {
     return mockApi({
         'GET /auth/me': () => ok({ teacher: TEACHER }),
         'GET /health': healthy,
+        'GET /classrooms': () => ok({ classrooms: [] }),
         ...extraRoutes
     })
 }
@@ -43,12 +44,12 @@ describe('Panel (con sesión)', () => {
         expect(await screen.findByText('No se pudo contactar al servidor')).toBeInTheDocument()
         await userEvent.click(screen.getByRole('button', { name: /reintentar/i }))
         expect(await screen.findByText('En línea')).toBeInTheDocument()
-        expect(screen.getByText('Todavía no hay aulas para mostrar')).toBeInTheDocument()
+        expect(await screen.findByText('Aún no tienes aulas activas')).toBeInTheDocument()
     })
 
     it('los módulos pendientes abren una página informativa', async () => {
         signedIn()
-        renderRoute('/aulas')
+        renderRoute('/metodologias')
         expect(await screen.findByText('Módulo en preparación')).toBeInTheDocument()
     })
 

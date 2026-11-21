@@ -8,6 +8,8 @@ import { RegisterPage } from './pages/RegisterPage.jsx'
 import { DashboardPage } from './pages/DashboardPage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
 import { CurriculumPage } from './pages/CurriculumPage.jsx'
+import { ClassroomsPage } from './pages/ClassroomsPage.jsx'
+import { ClassroomDetailPage } from './pages/ClassroomDetailPage.jsx'
 import { ComingSoonPage } from './pages/ComingSoonPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { NAV_ITEMS } from './components/layout/navigation.js'
@@ -40,6 +42,8 @@ export const routes = [
         children: [
             { path: ROUTES.dashboard, element: <DashboardPage /> },
             { path: ROUTES.curriculum, element: <CurriculumPage /> },
+            { path: ROUTES.classrooms, element: <ClassroomsPage /> },
+            { path: `${ROUTES.classrooms}/:classroomId`, element: <ClassroomDetailPage /> },
             { path: ROUTES.profile, element: <ProfilePage /> },
             ...NAV_ITEMS.filter((item) => !item.available).map((item) => ({
                 path: item.to,
