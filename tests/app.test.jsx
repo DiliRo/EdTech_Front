@@ -49,7 +49,7 @@ describe('Panel (con sesión)', () => {
 
     it('los módulos pendientes abren una página informativa', async () => {
         signedIn()
-        renderRoute('/metodologias')
+        renderRoute('/guias')
         expect(await screen.findByText('Módulo en preparación')).toBeInTheDocument()
     })
 
