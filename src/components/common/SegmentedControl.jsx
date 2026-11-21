@@ -10,7 +10,12 @@ const Segment = ({ children, ...radioProps }) => {
                 {...control}
                 cursor="pointer"
                 textAlign="center"
-                px={4}
+                px={{ base: 2, sm: 4 }}
+                h="full"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                lineHeight="short"
                 py={1.5}
                 borderRadius="md"
                 fontWeight="semibold"
@@ -39,6 +44,7 @@ export const SegmentedControl = ({ name, label, options, value, onChange }) => {
                 role="radiogroup"
                 aria-labelledby={`${name}-label`}
                 display="inline-flex"
+                flexWrap={{ base: 'wrap', sm: 'nowrap' }}
                 w={{ base: 'full', sm: 'auto' }}
                 gap={1}
                 p={1}

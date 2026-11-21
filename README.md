@@ -76,9 +76,10 @@ src/
 │   ├── catalog/              # OptionGroup, GradeSelector, SubjectSelector, TopicSelector, TopicDetail
 │   ├── classrooms/           # ClassroomCard, ClassroomFormModal, ClassroomInfo, StudentTable, StudentFormModal…
 │   ├── common/               # ConfirmDialog, Pagination, SearchInput, SegmentedControl
+│   ├── methodologies/        # MethodologyCard, MethodologyFilters, MethodologyContent, MethodologyForm, ListEditor…
 │   ├── ui/                   # BrandLogo, PageHeader, SurfaceCard, FormField, FormAlert, PasswordInput…
 │   └── ServerStatusCard.jsx  # estado real de GET /api/health
-├── pages/                    # Login, Register, Dashboard, Curriculum, Classrooms, ClassroomDetail, Profile…
+├── pages/                    # Login, Register, Dashboard, Curriculum, Classrooms, Methodologies, Profile…
 ├── services/
 │   ├── apiClient.js          # Axios centralizado (VITE_API_URL, token Bearer, errores)
 │   ├── auth.service.js       # POST /auth/register, POST /auth/login, GET /auth/me
@@ -86,9 +87,10 @@ src/
 │   ├── catalog.service.js    # GET /grades, /subjects, /topics, /topics/:id
 │   ├── classroom.service.js  # /classrooms (B4)
 │   ├── student.service.js    # /classrooms/:id/students, /students/:id (B4)
+│   ├── methodology.service.js # /methodologies (B5)
 │   └── health.service.js
 ├── hooks/                    # useAsync, useQuery, usePagination, useNotify, useAuth, useFormState…
-├── context/                  # AuthContext: sesión del docente
+├── context/                  # AuthContext (sesión) y GuidePlanningContext (metodología para la próxima guía)
 └── utils/                    # constantes, env, jwt, tokenStorage, apiError, validation, catalog, classroom, text
 tests/                        # Vitest + Testing Library
 ```
@@ -104,7 +106,10 @@ tests/                        # Vitest + Testing Library
 | `/perfil` | Privada. Nombre, apellido e idioma preferido |
 | `/aulas` | Privada. Aulas del docente: filtros, búsqueda, paginación, crear, editar, archivar, restaurar |
 | `/aulas/:classroomId` | Privada. Información del aula y sus estudiantes |
-| `/metodologias`, `/guias`, `/evaluaciones`, `/seguimiento` | Privadas. "Módulo en preparación" |
+| `/metodologias` | Privada. Metodologías predeterminadas y propias, con filtros |
+| `/metodologias/nueva`, `/metodologias/:id/editar` | Privadas. Formulario de metodología personalizada |
+| `/metodologias/:id` | Privada. Detalle de una metodología |
+| `/guias`, `/evaluaciones`, `/seguimiento` | Privadas. "Módulo en preparación" |
 | cualquier otra | 404 |
 
 Sin sesión, una ruta privada lleva a `/login` y, al ingresar, se vuelve a la página pedida.
@@ -182,6 +187,27 @@ Consulta de solo lectura del catálogo curricular (módulo B3 del backend):
 - Después de cada operación se vuelve a consultar la lista (sin perder búsqueda ni página) y se
   muestra un aviso. Si falla, el mensaje del backend aparece en el formulario o el diálogo.
 - Los estudiantes solo se muestran en el detalle de un aula propia; sus códigos no van en la URL.
+
+## Metodologías (`/metodologias`)
+
+| Acción | Endpoint (B5) |
+|---|---|
+| Listar con filtros | `GET /api/methodologies?scope=all\|default\|mine&grade=&subject=&maxDuration=&learningPreferences=a,b` |
+| Detalle | `GET /api/methodologies/:id` |
+| Crear / editar (solo propias) | `POST /api/methodologies`, `PATCH /api/methodologies/:id` (solo los campos que cambiaron) |
+| Archivar / restaurar (solo propias) | `DELETE /api/methodologies/:id` / `PATCH … { isActive: true }` |
+
+- **Predeterminadas** (MINEDUC): etiqueta navy y borde sólido. Son de solo lectura: no muestran
+  "Editar" y su ruta de edición no abre el formulario. Se ofrece "Crear una propia basada en esta",
+  que copia el contenido y cita la fuente original.
+- **Personalizadas**: etiqueta turquesa y borde discontinuo; solo las ve y edita su autor.
+- Los filtros se aplican en el backend y quedan en la URL. Las etiquetas de preferencias vienen de
+  `meta.learningPreferences`. Las preferencias se presentan como descriptivas: no se ordena ni se
+  recomienda ninguna metodología como mejor.
+- **Selección para la próxima guía**: "Usar en mi próxima guía" guarda en `sessionStorage`
+  (`etamanik.guidePlanning`) solo `{ teacherId, methodology: { id, name, isDefault } }`. El módulo de
+  guías leerá `useGuidePlanning().selectedMethodology.id` y lo enviará como `teachingMethodId`.
+  La selección se borra al cerrar sesión o la pestaña, y al archivar esa metodología.
 
 ## Cliente HTTP
 

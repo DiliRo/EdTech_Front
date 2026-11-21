@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthContext, SESSION_NOTICES } from './authContext.js'
 import { tokenStorage } from '../utils/tokenStorage.js'
+import { guidePlanningStorage } from '../utils/guidePlanningStorage.js'
 import { getTokenExpiration, isTokenExpired } from '../utils/jwt.js'
 import { UNAUTHORIZED_EVENT } from '../services/apiClient.js'
 import * as authService from '../services/auth.service.js'
@@ -39,6 +40,7 @@ export const AuthProvider = ({ children }) => {
 
     const endSession = useCallback((notice = null) => {
         tokenStorage.clear()
+        guidePlanningStorage.clear() // en computadoras compartidas no queda nada del docente
         setToken(null)
         setState({ status: 'unauthenticated', teacher: null, error: null, notice })
     }, [])

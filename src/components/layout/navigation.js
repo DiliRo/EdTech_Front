@@ -9,7 +9,7 @@ export const NAV_ITEMS = Object.freeze([
     { label: 'Inicio', to: ROUTES.dashboard, icon: FiHome, available: true },
     { label: 'Currículo', to: ROUTES.curriculum, icon: FiLayers, available: true },
     { label: 'Aulas', to: ROUTES.classrooms, icon: FiUsers, available: true },
-    { label: 'Metodologías', to: ROUTES.methodologies, icon: FiBookOpen, available: false },
+    { label: 'Metodologías', to: ROUTES.methodologies, icon: FiBookOpen, available: true },
     { label: 'Guías de clase', to: ROUTES.lessonGuides, icon: FiFileText, available: false },
     { label: 'Evaluaciones', to: ROUTES.assessments, icon: FiClipboard, available: false },
     { label: 'Seguimiento', to: ROUTES.experiments, icon: FiTrendingUp, available: false },

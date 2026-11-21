@@ -38,11 +38,11 @@ export const useFormState = (initialValues) => {
     }
 
     const applyServerError = (error) => {
-        // El backend puede marcar elementos de una lista (p. ej. "subjectIds[2]"): se asignan al campo
+        // El backend puede marcar elementos o subcampos (p. ej. "subjectIds[2]", "steps[0].description"): se asignan al campo
         const known = {}
         const unknown = []
         for (const [name, message] of Object.entries(error?.fieldErrors ?? {})) {
-            const base = name.replace(/\[\d+\]$/, '')
+            const base = name.replace(/[[.].*$/, '')
             if (base in values) known[base] ??= message
             else unknown.push(message)
         }
